@@ -1,11 +1,11 @@
-# ts-csharp
+# ts2csharp-auto
 
 Convert typescript interfaces or classes to csharp classes.
 
 ## Example usage
 
 ```javascript
-import { convertInterfacesToCSharp } from "ts-csharp";
+import { convertInterfacesToCSharp } from "ts2csharp-auto";
 
 const myTypescriptClassString = `
 interface MyTypescriptClass {
@@ -32,31 +32,24 @@ Generates the following code:
 ```c#
 
 public class MyTypescriptClass {
-
-    [JsonProperty("propOne")]
-    public object PropOne;
-
-    [JsonProperty("propTwo")]
-    public string PropTwo;
-
-    [JsonProperty("propThree")]
-    public IEnumerable<int> PropThree;
-
-    [JsonProperty("propFour")]
-    public bool PropFour;
+    
+    public object PropOne {get;set;}
+    
+    public string PropTwo {get;set;}
+    
+    public IEnumerable<int> PropThree {get;set;}
+    
+    public bool PropFour {get;set;}
 
 }
 
 public class AnotherTypescriptClass {
 
-    [JsonProperty("nestedObjectsInAList")]
-    public IEnumerable<MyTypescriptClass> NestedObjectsInAList;
+    public IEnumerable<MyTypescriptClass> NestedObjectsInAList {get;set;}
 
-    [JsonProperty("recursiveObject")]
-    public AnotherTypescriptClass RecursiveObject;
+    public AnotherTypescriptClass RecursiveObject {get;set;}
 
-    [JsonProperty("isReallyCool")]
-    public bool IsReallyCool;
+    public bool IsReallyCool {get;set;}
 
 }
 ```
