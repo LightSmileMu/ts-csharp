@@ -1,7 +1,8 @@
 const interfaceNameRegex = /(interface|class) ([a-zA-Z0-9?]+) /g;
-const interfaceBodyRegex = /((interface|class) [a-zA-Z0-9?]+\s{[\sa-zA-Z:?;\[\]]+})/g;
+const interfaceBodyRegex = /((interface|class) [a-zA-Z0-9?]+\s{[\sa-zA-Z0-9:?;\[\]]+})/g;
 const interfaceBodyExportsOnlyRegex = /(export (interface|class) [a-zA-Z0-9?]+\s{[\sa-zA-Z:?;\[\]]+})/g;
 const propertyRegex = /([a-zA-Z0-9?]+\s*:\s*[a-zA-Z\[\]]+)/g;
+const valueTypes = ["boolean", "number", "Date"];
 
 export interface TsProperty {
   property: string;
@@ -20,6 +21,7 @@ const typeMappings = {
   boolean: "bool",
   any: "object",
   void: "void",
+  Date: "DateTime",
 };
 
 function convertInterfacesToCSharp(sInterfaces: string);
@@ -71,12 +73,18 @@ public class ${className} {
 const csProperty = (propertyName: string, propertyType: string) => {
   const isList = propertyType.includes("[");
   propertyType = propertyType.replace(/\[\]/g, "");
+  const nullableType = propertyType.includes("?");
+  propertyType = propertyType.replace("?", "");
 
   let csType: string;
   if (Object.keys(typeMappings).includes(propertyType)) {
     csType = typeMappings[propertyType];
   } else {
     csType = convertToPascalCase(propertyType);
+  }
+
+  if (nullableType) {
+    csType = csType.concat("?");
   }
 
   // Convert list to IEnumerable if necessary
@@ -130,9 +138,14 @@ export const extractProperties = (tsInterface: string): TsProperty[] => {
 
   let tsProperties: TsProperty[] = matches.map((match) => {
     const components = match.split(":");
+
+    let type = components[1].trim();
+    type = type.concat(
+      components[0].trim().endsWith("?") && valueTypes.includes(type) ? "?" : ""
+    );
     return {
       property: components[0].trim().replace("?", ""),
-      type: components[1].trim(),
+      type,
     };
   });
   return tsProperties;
